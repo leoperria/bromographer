@@ -17,6 +17,11 @@ constexpr uint8_t kLcdI2cAddress = 0x27;
 constexpr uint8_t kLcdCols = 16;
 constexpr uint8_t kLcdRows = 2;
 
+// SparkFun Pro Micro (ATmega32U4) hardware I2C pins used by the LCD.
+// can't be changed without a custom board design so we don't expose them as user-configurable options.
+// constexpr uint8_t kI2cSdaPin = 2; // SDA
+// constexpr uint8_t kI2cSclPin = 3; // SCL
+
 constexpr char kFirmwareRevision[] = "1";
 
 // ---- Behavior constants from the approved plan ----
@@ -58,5 +63,3 @@ constexpr bool kReverseEncoderDirection = false;
 // - I2C LCD
 
 }  // namespace Config
-
-
