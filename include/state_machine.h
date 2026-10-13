@@ -62,8 +62,7 @@ private:
 
     void showLockedHint(uint32_t nowMs);
 
-    static uint16_t stepTimeUp(uint16_t value);
-    static uint16_t stepTimeDown(uint16_t value);
+    static uint16_t stepTimeBy(uint16_t value, int16_t deltaSec);
 
     uint8_t uvDutyFromIntensity() const;
     uint16_t displayedRemainingSec() const;
@@ -87,5 +86,7 @@ private:
     MachineState pressStartState_ = MachineState::Boot;
     bool pressConsumed_ = false;
     bool pressCausedPause_ = false;
+    bool hasLastEncoderRotateMs_ = false;
+    uint32_t lastEncoderRotateMs_ = 0;
 };
 

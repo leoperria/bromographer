@@ -46,6 +46,8 @@ void StateMachine::begin(uint32_t nowMs, const PersistedSettings& settings) {
     pressStartState_ = MachineState::Boot;
     pressConsumed_ = false;
     pressCausedPause_ = false;
+    hasLastEncoderRotateMs_ = false;
+    lastEncoderRotateMs_ = 0;
 }
 
 void StateMachine::handleEvent(const InputEvent& event, uint32_t nowMs) {
@@ -108,7 +110,13 @@ void StateMachine::handleEvent(const InputEvent& event, uint32_t nowMs) {
                 int8_t detents = event.value;
                 while (detents > 0) {
                     if (selectedField_ == SelectedField::Time) {
-                        setTimeSec_ = stepTimeUp(setTimeSec_);
+                        const bool fastTurn = hasLastEncoderRotateMs_ &&
+                                              (event.atMs - lastEncoderRotateMs_ <=
+                                               Config::kEncoderFastTurnThresholdMs);
+                        const int16_t stepSec = fastTurn ? static_cast<int16_t>(Config::kTimeFastStepSec) : 1;
+                        setTimeSec_ = stepTimeBy(setTimeSec_, stepSec);
+                        hasLastEncoderRotateMs_ = true;
+                        lastEncoderRotateMs_ = event.atMs;
                     } else {
                         intensityPct_ = static_cast<uint8_t>(
                             (intensityPct_ + Config::kIntensityStepPct > Config::kIntensityMaxPct)
@@ -119,7 +127,13 @@ void StateMachine::handleEvent(const InputEvent& event, uint32_t nowMs) {
                 }
                 while (detents < 0) {
                     if (selectedField_ == SelectedField::Time) {
-                        setTimeSec_ = stepTimeDown(setTimeSec_);
+                        const bool fastTurn = hasLastEncoderRotateMs_ &&
+                                              (event.atMs - lastEncoderRotateMs_ <=
+                                               Config::kEncoderFastTurnThresholdMs);
+                        const int16_t stepSec = fastTurn ? static_cast<int16_t>(Config::kTimeFastStepSec) : 1;
+                        setTimeSec_ = stepTimeBy(setTimeSec_, static_cast<int16_t>(-stepSec));
+                        hasLastEncoderRotateMs_ = true;
+                        lastEncoderRotateMs_ = event.atMs;
                     } else {
                         intensityPct_ = static_cast<uint8_t>(
                             (intensityPct_ < Config::kIntensityMinPct + Config::kIntensityStepPct)
@@ -177,7 +191,7 @@ OutputSnapshot StateMachine::outputs() const {
 
     if (state_ == MachineState::Exposing) {
         out.uvDuty = uvDutyFromIntensity();
-        out.ledMode = LedMode::SlowBlink;
+        out.ledMode = LedMode::Solid;
     } else if (state_ == MachineState::Paused) {
         out.uvDuty = 0;
         out.ledMode = LedMode::VeryFastBlink;
@@ -342,30 +356,15 @@ void StateMachine::showLockedHint(uint32_t nowMs) {
     lockedHintUntilMs_ = nowMs + Config::kSettingsLockedHintMs;
 }
 
-uint16_t StateMachine::stepTimeUp(uint16_t value) {
-    if (value >= Config::kTimeMaxSec) {
-        return Config::kTimeMaxSec;
-    }
-    if (value < 60) {
-        return static_cast<uint16_t>((value + 1 > Config::kTimeMaxSec) ? Config::kTimeMaxSec : value + 1);
-    }
-    if (value < 300) {
-        return static_cast<uint16_t>((value + 5 > Config::kTimeMaxSec) ? Config::kTimeMaxSec : value + 5);
-    }
-    return static_cast<uint16_t>((value + 15 > Config::kTimeMaxSec) ? Config::kTimeMaxSec : value + 15);
-}
-
-uint16_t StateMachine::stepTimeDown(uint16_t value) {
-    if (value <= Config::kTimeMinSec) {
+uint16_t StateMachine::stepTimeBy(uint16_t value, int16_t deltaSec) {
+    const int32_t candidate = static_cast<int32_t>(value) + static_cast<int32_t>(deltaSec);
+    if (candidate < static_cast<int32_t>(Config::kTimeMinSec)) {
         return Config::kTimeMinSec;
     }
-    if (value <= 60) {
-        return static_cast<uint16_t>((value <= Config::kTimeMinSec) ? Config::kTimeMinSec : value - 1);
+    if (candidate > static_cast<int32_t>(Config::kTimeMaxSec)) {
+        return Config::kTimeMaxSec;
     }
-    if (value <= 300) {
-        return static_cast<uint16_t>((value < 5 + Config::kTimeMinSec) ? Config::kTimeMinSec : value - 5);
-    }
-    return static_cast<uint16_t>((value < 15 + Config::kTimeMinSec) ? Config::kTimeMinSec : value - 15);
+    return static_cast<uint16_t>(candidate);
 }
 
 uint8_t StateMachine::uvDutyFromIntensity() const {

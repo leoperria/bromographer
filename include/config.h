@@ -9,9 +9,9 @@ constexpr uint8_t kEncoderS1Pin = 7;
 constexpr uint8_t kEncoderS2Pin = 8;
 constexpr uint8_t kEncoderKeyPin = 9;
 constexpr uint8_t kUvPwmPin = 5;
-constexpr uint8_t kStatusLedPin = 4;
+constexpr uint8_t kStatusLedPin = 19;
 constexpr uint8_t kBuzzerPin = 10;
-constexpr uint8_t kStartStopButtonPin = 6;
+constexpr uint8_t kStartStopButtonPin = 18;
 
 constexpr uint8_t kDisplayI2cAddress = 0x3C;
 // Logical UI grid: keep the original 16x2 user experience on the OLED.
@@ -53,6 +53,8 @@ constexpr uint16_t kLedVeryFastBlinkOnMs = 100;
 constexpr uint16_t kLedVeryFastBlinkOffMs = 100;
 
 constexpr uint16_t kButtonDebounceMs = 25;
+constexpr uint16_t kEncoderFastTurnThresholdMs = 220;
+constexpr uint8_t kTimeFastStepSec = 10;
 
 // One detent = this many quadrature pulses for this encoder.
 constexpr uint8_t kEncoderPulsesPerDetent = 4;

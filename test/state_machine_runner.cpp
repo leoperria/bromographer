@@ -79,18 +79,27 @@ void testTimeSteppingGrid() {
     sm.tick(Config::kBootSplashMs);
     assert(sm.state() == MachineState::Ready);
 
-    // 59 -> 60 -> 65
+    // Slow turns: 1-second steps.
     assert(sm.currentSettings().timeSec == 59);
     sm.handleEvent({InputEventType::EncoderRotate, +1, 1210}, 1210);
     assert(sm.currentSettings().timeSec == 60);
-    sm.handleEvent({InputEventType::EncoderRotate, +1, 1220}, 1220);
-    assert(sm.currentSettings().timeSec == 65);
+    sm.handleEvent(
+        {InputEventType::EncoderRotate, +1, static_cast<uint32_t>(1210 + Config::kEncoderFastTurnThresholdMs + 1)},
+        static_cast<uint32_t>(1210 + Config::kEncoderFastTurnThresholdMs + 1));
+    assert(sm.currentSettings().timeSec == 61);
 
-    // back 65 -> 60 -> 59
-    sm.handleEvent({InputEventType::EncoderRotate, -1, 1230}, 1230);
-    assert(sm.currentSettings().timeSec == 60);
-    sm.handleEvent({InputEventType::EncoderRotate, -1, 1240}, 1240);
-    assert(sm.currentSettings().timeSec == 59);
+    // Fast turns: 10-second steps.
+    sm.handleEvent({InputEventType::EncoderRotate, +1, 2000}, 2000);
+    assert(sm.currentSettings().timeSec == 62);
+    sm.handleEvent(
+        {InputEventType::EncoderRotate, +1, static_cast<uint32_t>(2000 + Config::kEncoderFastTurnThresholdMs)},
+        static_cast<uint32_t>(2000 + Config::kEncoderFastTurnThresholdMs));
+    assert(sm.currentSettings().timeSec == 72);
+
+    sm.handleEvent(
+        {InputEventType::EncoderRotate, -1, static_cast<uint32_t>(2000 + 2 * Config::kEncoderFastTurnThresholdMs)},
+        static_cast<uint32_t>(2000 + 2 * Config::kEncoderFastTurnThresholdMs));
+    assert(sm.currentSettings().timeSec == 62);
 }
 
 void testDoneAndConfirm() {
@@ -118,7 +127,7 @@ void testLedModesForExposingAndDone() {
     sm.handleEvent({InputEventType::ButtonDown, 0, 1100}, 1100);
     sm.handleEvent({InputEventType::ButtonUp, 0, 1150}, 1150);
     assert(sm.state() == MachineState::Exposing);
-    assert(sm.outputs().ledMode == LedMode::SlowBlink);
+    assert(sm.outputs().ledMode == LedMode::Solid);
 
     sm.tick(200000);
     assert(sm.state() == MachineState::Done);

@@ -16,12 +16,13 @@ Firmware for a UV exposure timer on SparkFun Pro Micro (ATmega32U4), using a 0.9
 - States: `Boot`, `Ready`, `Exposing`, `Paused`, `Done`
 - Main button events: `DOWN`, `HOLD` (2s), `UP`
 - Encoder rotation controls selected field only in `Ready`
+- Time adjustment uses turn speed: slow = `1s` per detent, fast = `10s` per detent
 - Encoder push toggles field in `Ready`; long push (>1s) ignored
 - Settings are locked during `Exposing` and `Paused` with on-screen hint
 - UV output is on only in `Exposing`
 - Status LED patterns:
   - `Off`: Boot/Ready
-  - `800ms on / 800ms off`: Exposing
+  - `Solid`: Exposing
   - `100ms on / 100ms off`: Paused
   - `200ms on / 200ms off`: Done
 
