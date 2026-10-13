@@ -1,6 +1,6 @@
 # Bromographer UV Exposure Timer
 
-Firmware for a UV exposure timer on SparkFun Pro Micro (ATmega32U4), using a 16x2 I2C LCD, rotary encoder, and start/stop button.
+Firmware for a UV exposure timer on SparkFun Pro Micro (ATmega32U4), using a 0.96in 128x64 I2C OLED, rotary encoder, and start/stop button.
 
 ## Hardware map (fixed)
 
@@ -9,7 +9,7 @@ Firmware for a UV exposure timer on SparkFun Pro Micro (ATmega32U4), using a 16x
 - Start/stop button (active-low, pull-up): `D6`
 - Encoder A/B: `D7` / `D8`
 - Encoder push (active-low, pull-up): `D9`
-- LCD: I2C `0x27`, 16x2
+- OLED: SSD1306-compatible I2C `0x3C`, 128x64 (UI keeps the same 16x2 interaction model)
 
 ## Implemented behavior
 
@@ -62,7 +62,7 @@ g++ -std=c++17 -Iinclude test/state_machine_runner.cpp src/state_machine.cpp -o 
 ## Open decisions currently fixed by default
 
 - Linear intensity mapping (kept as requested)
-- I2C LCD interface
+- I2C OLED interface
 - Active-low switches with internal pull-ups
 - Encoder pulses-per-detent default: `4`
 

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <LiquidCrystal_I2C.h>
+#include <U8g2lib.h>
 
 #include "state_machine.h"
 
@@ -12,9 +12,15 @@ public:
     void render(const ScreenBuffer& screen);
 
 private:
-    void defineCustomChars();
+    static constexpr uint8_t kCellWidthPx = 8;
+    static constexpr uint8_t kCellHeightPx = 13;
+    static constexpr uint8_t kLine1TopPx = 8;
+    static constexpr uint8_t kLine2TopPx = 34;
 
-    LiquidCrystal_I2C lcd_;
+    void drawCellGlyph(char c, uint8_t col, uint8_t rowTopPx);
+    void drawTextLine(const char* line, uint8_t rowTopPx);
+
+    U8G2_SSD1306_128X64_NONAME_F_HW_I2C oled_;
     ScreenBuffer last_{};
     bool hasLast_ = false;
 };

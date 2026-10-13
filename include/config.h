@@ -13,11 +13,12 @@ constexpr uint8_t kStatusLedPin = 4;
 constexpr uint8_t kBuzzerPin = 10;
 constexpr uint8_t kStartStopButtonPin = 6;
 
-constexpr uint8_t kLcdI2cAddress = 0x27;
-constexpr uint8_t kLcdCols = 16;
-constexpr uint8_t kLcdRows = 2;
+constexpr uint8_t kDisplayI2cAddress = 0x3C;
+// Logical UI grid: keep the original 16x2 user experience on the OLED.
+constexpr uint8_t kDisplayCols = 16;
+constexpr uint8_t kDisplayRows = 2;
 
-// SparkFun Pro Micro (ATmega32U4) hardware I2C pins used by the LCD.
+// SparkFun Pro Micro (ATmega32U4) hardware I2C pins used by the display.
 // can't be changed without a custom board design so we don't expose them as user-configurable options.
 // constexpr uint8_t kI2cSdaPin = 2; // SDA
 // constexpr uint8_t kI2cSclPin = 3; // SCL
@@ -60,6 +61,6 @@ constexpr bool kReverseEncoderDirection = false;
 // Open decision defaults (selected for now):
 // - Linear PWM mapping
 // - Active-low switches with INPUT_PULLUP
-// - I2C LCD
+// - I2C OLED
 
 }  // namespace Config
